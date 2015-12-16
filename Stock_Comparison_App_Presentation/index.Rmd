@@ -1,0 +1,106 @@
+---
+title       : Stock Comparison App
+subtitle    : HTML5 presentation
+author      : Alper Halbutogullari
+job         : Data Scientist
+framework   : io2012        # {io2012, html5slides, shower, dzslides, ...}
+highlighter : highlight.js  # {highlight.js, prettify, highlight}
+hitheme     : tomorrow      # 
+widgets     : []            # {mathjax, quiz, bootstrap}
+mode        : selfcontained # {standalone, draft}
+knit        : slidify::knit2slides
+
+--- .class #id
+
+# Why you need this App?
+   <BR>   <BR>
+
+>  Vanilla stock graphs usually present one stock at a time
+   <BR>   <BR>
+   
+>  But for investment you usually need to compare two stocks
+   <BR>   <BR>
+   
+>  This App plots two stocks at the same time over a given period so that you can make a good comparison.
+   <BR>   <BR>   <BR>
+   
+>  Bonus: You also have the option to view the quotes one stock at a time.
+
+
+
+---
+
+# Single stock view
+
+![Stock Comparison App screenshot](assets/img/Stock_Comparison_App_screenshot_single_stock.png)
+
+---
+
+# Double stock view
+
+![Stock Comparison App screenshot](assets/img/Stock_Comparison_App_screenshot_double_stock.png)
+
+
+---
+## Sample Chart
+
+```{r echo = F, results = 'asis'}
+require(rCharts)
+output$plot <- renderPlot({
+      stock <- getSymbols("AAPL", src = "yahoo", 
+      from = "2013-01-01",
+      to = as.character(Sys.Date()),
+      auto.assign = FALSE)
+                 
+  chartSeries(stock, theme = chartTheme("white"), 
+      type = "line",  legend=TRUE)
+})
+```
+
+---
+
+## Interactive Chart with Shiny Controls
+
+```{r opts.label = 'shiny', cache=FALSE, echo=FALSE, eval=TRUE}
+library(shiny)
+library(quantmod)
+
+slidifyUI(fluidPage(
+
+  titlePanel("Stock Comparison App"),
+  
+  sidebarLayout(
+
+    sidebarPanel(
+      
+      helpText("Enter two stocks to compare"),
+      
+      textInput("stock1", "Stock Symbol #1", "AAPL"),
+      
+      textInput("stock2", "Stock Symbol #2", "MSFT"),
+      
+      dateRangeInput("dates",
+                     "Date range",
+                     start = as.character(Sys.Date()-200),
+                     end = as.character(Sys.Date()-3)),
+    
+      actionButton("get", "Update Graph")
+    ),
+
+    mainPanel(    
+
+#      plotOutput("plot"),
+      div(id = 'chartSeriesPlot', class='shiny-html-output chartSeriesPlot rChart'),
+      
+      h2("Directions:", align="center"),
+      
+      p("Please enter two stocks symbols and select the date range you would like them compared."),
+
+      p("You may optionally enter just one stocks symbol, and the App will display it alone."),
+      
+      p("The graph should update itself automatically, but if it fails, please click the uptate button.")
+    )
+  )
+))
+```
+
